@@ -34,7 +34,6 @@ stages:
       vmImage: $(agentImage)
     steps:
       - task: AzureResourceGroupDeployment@2
-      condition: succeeded()
       displayName: ARM Template BVT
       inputs:
         azureSubscription: $(azureSubscription)
