@@ -1,0 +1,132 @@
+name: '$(Date:yyyyMMdd)$(Rev:.r)'
+
+trigger: 
+  batch: false
+  branches: 
+    include:
+      - master
+  paths:
+    include:
+      - "*"
+
+variables:
+  agentImage: windows-2019
+
+  azureSubscriptionDev: rhopkins-dev
+  azureSubscriptionStage: rhopkins-stage
+  azureSubscriptionProd: rhopkins-prod
+
+  resourceGroupName: RG-LogicApp-DevOps
+  resourceGroupLocation: westus2
+
+  armTemplateName: logicApp.listCallBackUrl.json
+  armTemplateParamsDev: logicApp.listCallBackUrl.parameters.dev.json
+  armTemplateParamsStage: logicApp.listCallBackUrl.parameters.stage.json
+  armTemplateParamsProd: logicApp.listCallBackUrl.parameters.prod.json
+
+stages:
+- stage: Build
+  jobs:
+  - job: CI_Build
+    workspace:
+      clean: all
+    pool:
+      vmImage: $(agentImage)
+    steps:
+      - task: AzureResourceGroupDeployment@2
+      condition: succeeded()
+      displayName: ARM Template BVT
+      inputs:
+        azureSubscription: $(azureSubscription)
+        action: Create Or Update Resource Group
+        resourceGroupName: $(resourceGroupName)
+        location: $(resourceGroupLocation)
+        templateLocation: Linked artifact
+        csmFile: $(Build.SourcesDirectory)/**/$(armTemplateName)
+        deploymentMode: Validation
+
+    - task: CopyFiles@2
+      condition: succeeded()
+      inputs:
+        sourceFolder: $(Build.SourcesDirectory)
+        contents: '**' 
+        targetFolder: $(Build.ArtifactStagingDirectory)
+
+    - task: PublishBuildArtifacts@1
+      condition: succeeded()
+      displayName: 'Publish Artifact: drop'
+
+- stage: Release_Dev
+  condition: succeeded()
+  jobs:
+    - deployment: Dev
+      environment: Dev
+      pool:
+        vmImage: $(agentImage)
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: AzureResourceGroupDeployment@2
+              enabled: true 
+              condition: succeeded()
+              displayName: ARM Deployment
+              inputs:
+                azureSubscription: $(azureSubscriptionDev)
+                action: Create Or Update Resource Group
+                resourceGroupName: $(resourceGroupName)-Dev
+                location: $(resourceGroupLocation)
+                templateLocation: Linked artifact
+                csmFile: $(Pipeline.Workspace)/drop/**/$(armTemplateName)
+                csmParametersFile: $(Pipeline.Workspace)/drop/**/$(armTemplateParamsDev)
+                deploymentMode: Complete
+
+- stage: Release_Stage
+  condition: succeeded()
+  jobs:
+    - deployment: Stage
+      environment: Stage
+      pool:
+        vmImage: $(agentImage)
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: AzureResourceGroupDeployment@2
+              enabled: true 
+              condition: succeeded()
+              displayName: ARM Deployment
+              inputs:
+                azureSubscription: $(azureSubscriptionStage)
+                action: Create Or Update Resource Group
+                resourceGroupName: $(resourceGroupName)-Stage
+                location: $(resourceGroupLocation)
+                templateLocation: Linked artifact
+                csmFile: $(Pipeline.Workspace)/drop/**/$(armTemplateName)
+                csmParametersFile: $(Pipeline.Workspace)/drop/**/$(armTemplateParamsStage)
+                deploymentMode: Complete
+
+- stage: Release_Prod
+  condition: succeeded()
+  jobs:
+    - deployment: Prod
+      environment: Prod
+      pool:
+        vmImage: $(agentImage)
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: AzureResourceGroupDeployment@2
+              enabled: true 
+              condition: succeeded()
+              displayName: ARM Deployment
+              inputs:
+                azureSubscription: $(azureSubscriptionProd)
+                action: Create Or Update Resource Group
+                resourceGroupName: $(resourceGroupName)
+                location: $(resourceGroupLocation)
+                templateLocation: Linked artifact
+                csmFile: $(Pipeline.Workspace)/drop/**/$(armTemplateName)
+                csmParametersFile: $(Pipeline.Workspace)/drop/**/$(armTemplateParamsProd)
+                deploymentMode: Complete

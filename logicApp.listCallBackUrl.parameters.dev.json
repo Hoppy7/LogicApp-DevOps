@@ -1,0 +1,12 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "logicApp_HTTP_Post_name": {
+            "value": "HTTP-Post-Dev"
+        },
+        "logicApp_Webhook_Trigger_name": {
+            "value": "Webhook-Trigger-Dev"
+        }
+    }
+}
