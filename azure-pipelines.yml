@@ -34,15 +34,15 @@ stages:
       vmImage: $(agentImage)
     steps:
       - task: AzureResourceGroupDeployment@2
-      displayName: ARM Template BVT
-      inputs:
-        azureSubscription: $(azureSubscription)
-        action: Create Or Update Resource Group
-        resourceGroupName: $(resourceGroupName)
-        location: $(resourceGroupLocation)
-        templateLocation: Linked artifact
-        csmFile: $(Build.SourcesDirectory)/**/$(armTemplateName)
-        deploymentMode: Validation
+        displayName: ARM Template BVT
+        inputs:
+          azureSubscription: $(azureSubscription)
+          action: Create Or Update Resource Group
+          resourceGroupName: $(resourceGroupName)
+          location: $(resourceGroupLocation)
+          templateLocation: Linked artifact
+          csmFile: $(Build.SourcesDirectory)/**/$(armTemplateName)
+          deploymentMode: Validation
 
     - task: CopyFiles@2
       condition: succeeded()
