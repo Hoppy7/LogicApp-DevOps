@@ -36,7 +36,7 @@ stages:
       - task: AzureResourceGroupDeployment@2
         displayName: ARM Template BVT
         inputs:
-          azureSubscription: $(azureSubscription)
+          azureSubscription: $(azureSubscriptionDev)
           action: Create Or Update Resource Group
           resourceGroupName: $(resourceGroupName)
           location: $(resourceGroupLocation)
