@@ -12,9 +12,9 @@ trigger:
 variables:
   agentImage: windows-2019
 
-  azureSubscriptionDev: rhopkins-dev
-  azureSubscriptionStage: rhopkins-stage
-  azureSubscriptionProd: rhopkins-prod
+  azureSubscriptionDev: RossHopkinsIC
+  azureSubscriptionStage: RossHopkinsIC
+  azureSubscriptionProd: RossHopkinsIC
 
   resourceGroupName: RG-LogicApp-DevOps
   resourceGroupLocation: westus2
