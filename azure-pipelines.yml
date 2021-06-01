@@ -31,7 +31,7 @@ stages:
     workspace:
       clean: all
     pool:
-      vmImage: $(agentImage)
+      name: azDeploy
     steps:
       - task: AzureResourceGroupDeployment@2
         displayName: ARM Template BVT
